@@ -321,6 +321,7 @@
         bool oldAPIRequestInPogress = APIRequestInPogress;        
         APIRequestInPogress = true;
 
+        // Request filter in the API will ensure that the below GET will 404 if the sales order does not belong to us, and we are authenticated as a debtor contact
         JiwaFinancials.Jiwa.JiwaServiceModel.SalesOrderGETRequest salesOrderGETRequest = new JiwaFinancials.Jiwa.JiwaServiceModel.SalesOrderGETRequest() { InvoiceID = InvoiceId };
         try
         {

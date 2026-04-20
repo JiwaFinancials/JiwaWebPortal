@@ -24,13 +24,15 @@ The portal is built using ASP.NET 10 Server Side Blazor, ServiceStack Client 8.1
 * Forgot password
 * Dark Mode / Light Mode
 
-Users of the portal authenticate using their email address and password from the debtor contact name.
+Users of the portal authenticate using their email address and password from the debtor contact name, or can authenticate as a staff member using their Jiwa user credentials.
 
 Users are able to request a password reset token to be emailed to them.
 
-Only users with the debtor contact name tag "Customer Web Portal - User" or "Customer Web Portal - Admin" are able to login
+Any enabled Jiwa staff member can login, or any debtor contacts with a debtor contact name tag "Customer Web Portal - User" or "Customer Web Portal - Admin"
 
-Only users with the debtor contact name tag "Customer Web Portal - Admin" are able edit or delete contact records.
+If authenticated as a debtor contact, only those debtor contacts with the debtor contact name tag "Customer Web Portal - Admin" are able edit or delete contact records.
+
+For Jiwa staff members, API route permissions will control what functions they are able to perform.
 
 ![image](https://github.com/user-attachments/assets/e62b6f58-7d71-47a9-bf91-b7063be35b67)
 

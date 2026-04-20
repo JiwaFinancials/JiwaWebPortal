@@ -45,8 +45,7 @@ namespace JiwaCustomerPortal.Components
         private ServiceStack.QueryResponse<Model> Response { get; set; }
         public Model SelectedItem { get; set; }
         private bool APIRequestInPogress;
-
-        DOMRect? tableRect;
+        
         [Inject] public IJSRuntime JS { get; set; }
         ElementReference? refResults;
 
@@ -517,6 +516,15 @@ namespace JiwaCustomerPortal.Components
         }
        
         public async void OnSelectItem(Model item)
+        {
+            SelectedItem = item;
+            if (ItemSelectedCallbackMethod.HasDelegate)
+            {
+                await ItemSelectedCallbackMethod.InvokeAsync(item);
+            }
+        }
+
+        public async void OnRowClick(Model item)
         {
             SelectedItem = item;
             if (ItemSelectedCallbackMethod.HasDelegate)

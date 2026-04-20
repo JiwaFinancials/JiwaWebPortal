@@ -30,50 +30,91 @@
         <section>
             <StatusMessage Message="@errorMessage" />
 
-            @if (hasMultipleUserIdentitiesWithEmailAddress)
-            {
-                <JiwaAPIAutoQueryGrid Model="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_DB_ContactNameMultiple"
-                                      QueryType="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_DB_ContactNameMultipleQuery" 
-                                      AutoQuery="@DebtorContactNameMultipleAutoQuery"
-                                      ShowPageNavigationHeader="false"
-                                      HiddenColumns=@(new List<String> {"RecID"})
-                                      CaptionMaps=@(new Dictionary<string, string> { ["Name"] = "Company", ["FirstName"] = "First Name"} )
-                                      AddSelectButtonColumn="true"
-                                      ItemSelectedCallbackMethod="@ItemSelected"
-                                      AuthType="AuthTypes.JiwaAPIKey"
-                                      APIExceptionCallbackMethod="@APIException">
-                </JiwaAPIAutoQueryGrid>
-            }
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="signInAsStaffMember" @bind="SignInAsStaffMember">
+                 <label class="form-check-label" for="signInAsStaffMember">Sign in as staff member</label>
+            </div>
 
-            <EditForm Model="Input" method="post" OnValidSubmit="SignInUser" FormName="signin">
-                <DataAnnotationsValidator />                
-                <hr />
-                <ValidationSummary class="text-danger" role="alert" />
-                <div class="form-floating mb-3">
-                    <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label for="email" class="form-label">Email</label>
-                    <ValidationMessage For="() => Input.Email" class="text-danger" />
-                </div>
-                <div class="form-floating mb-3">
-                    <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label for="password" class="form-label">Password</label>
-                    <ValidationMessage For="() => Input.Password" class="text-danger" />
-                </div>
-                <div class="checkbox mb-3">
-                    <label class="form-label">
-                        <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
-                        Remember me
-                    </label>
-                </div>
-                <div>
-                    <button type="submit" class="w-100 btn btn-lg btn-primary">Sign in</button>
-                </div>
-                <div>
-                    <p>
-                        <a href="User/ForgotPassword">Forgot your password?</a>
-                    </p>                    
-                </div>
-            </EditForm>
+            @if (!SignInAsStaffMember)
+            {
+                @if (hasMultipleUserIdentitiesWithEmailAddress)
+                {
+                    <JiwaAPIAutoQueryGrid Model="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_DB_ContactNameMultiple"
+                    QueryType="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_DB_ContactNameMultipleQuery" 
+                    AutoQuery="@DebtorContactNameMultipleAutoQuery"
+                    ShowPageNavigationHeader="false"
+                    HiddenColumns=@(new List<String> {"RecID"})
+                    CaptionMaps=@(new Dictionary<string, string> { ["Name"] = "Company", ["FirstName"] = "First Name"} )
+                    AddSelectButtonColumn="true"
+                    ItemSelectedCallbackMethod="@ItemSelected"
+                    AuthType="AuthTypes.JiwaAPIKey"
+                    APIExceptionCallbackMethod="@APIException">
+                    </JiwaAPIAutoQueryGrid>
+                }
+
+                <EditForm Model="Input" method="post" OnValidSubmit="SignInUser" FormName="signin">
+                    <DataAnnotationsValidator />                
+                    <hr>Customer Sign in<hr />
+                    <ValidationSummary class="text-danger" role="alert" />
+                    <div class="form-floating mb-3">
+                        <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                        <label for="email" class="form-label">Email</label>
+                        <ValidationMessage For="() => Input.Email" class="text-danger" />
+                    </div>
+                    <div class="form-floating mb-3">
+                        <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
+                        <label for="password" class="form-label">Password</label>
+                        <ValidationMessage For="() => Input.Password" class="text-danger" />
+                    </div>
+                    <div class="checkbox mb-3">
+                        <label class="form-label">
+                            <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
+                            Remember me
+                        </label>
+                    </div>
+                    <div>
+                        <button type="submit" class="w-100 btn btn-lg btn-primary">Sign in</button>
+                    </div>
+                    <div>
+                        <p>
+                            <a href="User/ForgotPassword">Forgot your password?</a>
+                        </p>                    
+                    </div>
+                </EditForm>
+            }
+            else
+            {
+                <EditForm Model="StaffInput" method="post" OnValidSubmit="SignInUser" FormName="signin">
+                    <DataAnnotationsValidator />
+                    <hr />
+                    <hr>Staff Sign in<hr />
+                    <ValidationSummary class="text-danger" role="alert" />
+                    <div class="form-floating mb-3">
+                        <InputText @bind-Value="StaffInput.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="yourusername" />
+                        <label for="username" class="form-label">Username</label>
+                        <ValidationMessage For="() => StaffInput.Username" class="text-danger" />
+                    </div>
+                    <div class="form-floating mb-3">
+                        <InputText type="password" @bind-Value="StaffInput.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
+                        <label for="password" class="form-label">Password</label>
+                        <ValidationMessage For="() => StaffInput.Password" class="text-danger" />
+                    </div>
+                    <div class="checkbox mb-3">
+                        <label class="form-label">
+                            <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
+                            Remember me
+                        </label>
+                    </div>
+                    <div>
+                        <button type="submit" class="w-100 btn btn-lg btn-primary">Sign in</button>
+                    </div>
+                    <div>
+                        <p>
+                            <a href="User/ForgotPassword">Forgot your password?</a>
+                        </p>
+                    </div>
+                </EditForm>
+            }
         </section>
     </div>
 </div>
@@ -83,13 +124,17 @@
     private bool APIRequestInPogress;
     private bool hasMultipleUserIdentitiesWithEmailAddress;
     private JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_DB_ContactNameMultipleQuery DebtorContactNameMultipleAutoQuery;
-    private JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_DB_ContactNameMultiple selectedContact { get; set; }    
+    private JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_DB_ContactNameMultiple selectedContact { get; set; }
+    private bool _SignInAsStaffMember;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromForm]
+    private StaffInputModel StaffInput { get; set; } = new();
 
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
@@ -106,25 +151,48 @@
             };
     }
 
+    public bool SignInAsStaffMember
+    {
+        get
+        {
+            return _SignInAsStaffMember;
+        }
+
+        set
+        {
+            _SignInAsStaffMember = value;
+        }
+    }
+
     public async Task SignInUser()
     {
         errorMessage = null;
 
-        if (hasMultipleUserIdentitiesWithEmailAddress && selectedContact == null)
+        if (!SignInAsStaffMember)
         {
-            errorMessage = "You must select which user identity you are authenticating with.";
-            return;
+            if (hasMultipleUserIdentitiesWithEmailAddress && selectedContact == null)
+            {
+                errorMessage = "You must select which user identity you are authenticating with.";
+                return;
+            }
         }
 
         ServiceStack.Authenticate authRequest = new ServiceStack.Authenticate();
 
-        if (!hasMultipleUserIdentitiesWithEmailAddress)
+        if (!SignInAsStaffMember)
         {
-            authRequest = new ServiceStack.Authenticate() { UserName = Input.Email, Password = Input.Password, provider = "debtorcontactnameemailaddresscredentials", RememberMe = Input.RememberMe };
+            if (!hasMultipleUserIdentitiesWithEmailAddress)
+            {
+                authRequest = new ServiceStack.Authenticate() { UserName = Input.Email, Password = Input.Password, provider = "debtorcontactnameemailaddresscredentials", RememberMe = Input.RememberMe };
+            }
+            else
+            {
+                authRequest = new ServiceStack.Authenticate() { UserName = selectedContact.RecID, Password = Input.Password, provider = "debtorcontactnameidcredentials", RememberMe = Input.RememberMe };
+            }        
         }
         else
         {
-            authRequest = new ServiceStack.Authenticate() { UserName = selectedContact.RecID, Password = Input.Password, provider = "debtorcontactnameidcredentials", RememberMe = Input.RememberMe };
+            authRequest = new ServiceStack.Authenticate() { UserName = StaffInput.Username, Password = StaffInput.Password, provider = "credentials", RememberMe = Input.RememberMe };
         }
 
         ServiceStack.AuthenticateResponse? authResponse = null;
@@ -152,8 +220,19 @@
                 return;
             }
             else
-            {
+            {                
                 errorMessage = webServiceException.Message;
+                if (webServiceException.StatusCode == 401)
+                {
+                    if (!SignInAsStaffMember)
+                    {
+                        errorMessage += $"{System.Environment.NewLine}{System.Environment.NewLine}Unauthorized access. Please check your credentials, and ensure a valid licence has been assigned to the user configured for the service.";
+                    }
+                    else
+                    {
+                        errorMessage += $"{System.Environment.NewLine}{System.Environment.NewLine}Unauthorized access. Please check your credentials, and ensure a valid licence has been assigned to the user.";
+                    }
+                }
                 return;
             }
         }        
@@ -190,15 +269,19 @@
             JiwaFinancials.Jiwa.JiwaServiceModel.JiwaAuthUserSessionResponse jiwaAuthUserSession = await JiwaAPI.GetAsync(new JiwaFinancials.Jiwa.JiwaServiceModel.AuthCurrentSessionGETRequest(), jiwaAPISessionId: authResponse.SessionId);
             JiwaFinancials.Jiwa.JiwaServiceModel.WebPortalUserSession webPortalUserSession = jiwaAuthUserSession.ConvertTo<JiwaFinancials.Jiwa.JiwaServiceModel.WebPortalUserSession>();
 
-            JiwaFinancials.Jiwa.JiwaServiceModel.DebtorContactNameCustomerWebPortalRoleGETResponse debtorContactNameCustomerWebPortalRoleGETResponse = await JiwaAPI.GetAsync(new JiwaFinancials.Jiwa.JiwaServiceModel.DebtorContactNameCustomerWebPortalRoleGETRequest(), jiwaAPISessionId: authResponse.SessionId);
-
-            if (debtorContactNameCustomerWebPortalRoleGETResponse.Roles == null || (!debtorContactNameCustomerWebPortalRoleGETResponse.Roles.Contains("User") && !debtorContactNameCustomerWebPortalRoleGETResponse.Roles.Contains("Admin")))
+            if (!SignInAsStaffMember)
             {
-                // no web portal role has been assigned to this debtor contact name; they are not allowed to sign in.
-                throw new Exception("User does not have permission to sign in using the Customer Web Portal. Add the tag 'Customer Web Portal - User' or 'Customer Web Portal - Admin' to the debtor contact name");
-            }
+                JiwaFinancials.Jiwa.JiwaServiceModel.DebtorContactNameCustomerWebPortalRoleGETResponse debtorContactNameCustomerWebPortalRoleGETResponse = await JiwaAPI.GetAsync(new JiwaFinancials.Jiwa.JiwaServiceModel.DebtorContactNameCustomerWebPortalRoleGETRequest(), jiwaAPISessionId: authResponse.SessionId);
 
-            webPortalUserSession.IsAdminRole = debtorContactNameCustomerWebPortalRoleGETResponse.Roles.Contains("Admin");
+                if (debtorContactNameCustomerWebPortalRoleGETResponse.Roles == null || (!debtorContactNameCustomerWebPortalRoleGETResponse.Roles.Contains("User") && !debtorContactNameCustomerWebPortalRoleGETResponse.Roles.Contains("Admin")))
+                {
+                    // no web portal role has been assigned to this debtor contact name; they are not allowed to sign in.
+                    throw new Exception("User does not have permission to sign in using the Customer Web Portal. Add the tag 'Customer Web Portal - User' or 'Customer Web Portal - Admin' to the debtor contact name");
+                }
+
+                webPortalUserSession.IsAdminRole = debtorContactNameCustomerWebPortalRoleGETResponse.Roles.Contains("Admin");
+            }            
+
             await ProtectedLocalStore.SetAsync("JiwaCustomerWebPortalAuthUserSession", webPortalUserSession);                   
             WebPortalUserSessionStateContainer.SetWebPortalUserSession(webPortalUserSession);
             selectedContact = null;
@@ -241,6 +324,19 @@
         [Required]
         [EmailAddress]
         public string Email { get; set; } = "";
+
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = "";
+
+        [Display(Name = "Remember me?")]
+        public bool RememberMe { get; set; }
+    }
+
+    private sealed class StaffInputModel
+    {
+        [Required]        
+        public string Username { get; set; } = "";
 
         [Required]
         [DataType(DataType.Password)]

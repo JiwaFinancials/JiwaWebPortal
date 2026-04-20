@@ -315,6 +315,7 @@
         bool oldAPIRequestInPogress = APIRequestInPogress;        
         APIRequestInPogress = true;
 
+        // Request filter in the API will ensure that the below GET will 404 if the sales quote does not belong to us, and we are authenticated as a debtor contact
         JiwaFinancials.Jiwa.JiwaServiceModel.SalesQuoteGETRequest salesQuoteGETRequest = new JiwaFinancials.Jiwa.JiwaServiceModel.SalesQuoteGETRequest() { QuoteID = QuoteId };
         try
         {
