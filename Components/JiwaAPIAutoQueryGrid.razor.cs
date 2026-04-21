@@ -37,13 +37,15 @@ namespace JiwaCustomerPortal.Components
         [Parameter]
         public EventCallback<Model> ItemSelectedCallbackMethod { get; set; }
         [Parameter]
+        public Func<List<Model>, Model>? InitialSelectedItemMethod { get; set; }
+        [Parameter]
         public Func<JiwaAutoQueryColumn<Model>, RenderFragment> HeaderCellRenderFragmentCallbackMethod { get; set; }
         [Parameter]
         public Func<Model, string, RenderFragment> DataCellRenderFragmentCallbackMethod { get; set; }
 
         public List<JiwaAutoQueryColumn<Model>> Columns { get; set; } = new List<JiwaAutoQueryColumn<Model>>();
-        private ServiceStack.QueryResponse<Model> Response { get; set; }
-        public Model SelectedItem { get; set; }
+        private ServiceStack.QueryResponse<Model> Response { get; set; }        
+        public Model? SelectedItem { get; set; }
         private bool APIRequestInPogress;
         
         [Inject] public IJSRuntime JS { get; set; }
@@ -59,7 +61,7 @@ namespace JiwaCustomerPortal.Components
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-
+            
             if (AutoQuery == null)
             {
                 return;
@@ -187,6 +189,11 @@ namespace JiwaCustomerPortal.Components
             }            
 
             await ExecuteAutoQuery();
+
+            if (InitialSelectedItemMethod is not null)
+            {
+                SelectedItem = InitialSelectedItemMethod.Invoke(Response.Results);
+            }
         }
 
         public async Task ExecuteAutoQuery()

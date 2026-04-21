@@ -24,9 +24,30 @@
 
 <StatusMessage Message="@statusMessage"/>
 
-@if (selectedDebtorListItem is null || Debtor is null)
+@if (ContactNameToCreate != null)
 {
-    <JiwaAPIAutoQueryGrid Model="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_List"
+    <div class="relative">
+        <CreateEditContactDialog Title="Create Contact" ContactName="@ContactNameToCreate" OnClose="@CreateContactDialogClosed" />
+    </div>
+}
+
+@if (ContactNameToEdit != null)
+{
+    <div class="relative">
+        <CreateEditContactDialog Title="Edit Contact" ContactName="@ContactNameToEdit" OnClose="@EditContactDialogClosed" />
+    </div>
+}
+
+@if (ContactNameToDelete != null)
+{
+    <div class="relative">
+        <ModalDialogOKCancel Title="Delete Contact?" Text="@($"Delete contact {ContactNameToDelete.DisplayName()}, {ContactNameToDelete.EmailAddress} ?")" OnClose="@DeleteContactConfirmationDialogClosed" />
+    </div>
+}
+
+@if (Debtor is null)
+{
+    <JiwaAPIAutoQueryGrid @ref="CustomerListGrid" Model="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_List"
     QueryType="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_ListQuery"
     AutoQuery="@v_Jiwa_Debtor_ListQuery"
     ShowPageNavigationHeader="true"
@@ -43,7 +64,7 @@ else
 {
     <div class="row">
         <div class="col-3">
-            <JiwaAPIAutoQueryGrid Model="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_List"
+            <JiwaAPIAutoQueryGrid @ref="CustomerListGridCompact" Model="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_List"
                                   QueryType="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_ListQuery"
                                   AutoQuery="@v_Jiwa_Debtor_ListQuery"
                                   ShowPageNavigationHeader="true"
@@ -51,20 +72,21 @@ else
                                   CaptionMaps=@(new Dictionary<string, string> { ["AccountNo"] = "Account No." } )
                                   AddSelectButtonColumn="false"
                                   ItemSelectedCallbackMethod="@ItemSelected"
+                                  InitialSelectedItemMethod="@InitialSelectedItemMethod"
                                   NoAuthenticationTokenCallbackMethod="@NoAuthenticationToken"
                                   AuthType="AuthTypes.JiwaAPISessionId"
                                   APIExceptionCallbackMethod="@APIException">
-            </JiwaAPIAutoQueryGrid>
+            </JiwaAPIAutoQueryGrid>            
         </div>
         <div class="col-9">
             <div class="row">
                 <div class="col-3">
                     <label for="AccountNo" class="form-label">AccountNo</label>
-                    <input type="text" class="form-control" id="AccountNo" readonly placeholder="@selectedDebtorListItem.AccountNo">
+                    <input type="text" class="form-control" id="AccountNo" readonly placeholder="@Debtor.AccountNo">
                 </div>
                 <div class="col-9">
                     <label for="Name" class="form-label">Name</label>
-                    <input type="text" class="form-control" id="Name" readonly placeholder="@selectedDebtorListItem.Name">
+                    <input type="text" class="form-control" id="Name" readonly placeholder="@Debtor.Name">
                 </div>
             </div>
 
@@ -81,6 +103,9 @@ else
                     </li>
                     <li class="nav-item" role="presentation">
                         <a @onclick='(() => OnSelectTab("Financials-tab"))' class=@String.Format("nav-link{0}", SelectedTabId == "Financials-tab" ? " active" : null) id="Financials-tab" data-bs-toggle="tab" data-bs-target="#Financials" type="button" role="tab" aria-controls="profile" aria-selected=@String.Format("nav-link{0}", SelectedTabId == "Financials-tab" ? "true" : "false")>Financials</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a @onclick='(() => OnSelectTab("Transactions-tab"))' class=@String.Format("nav-link{0}", SelectedTabId == "Transactions-tab" ? " active" : null) id="Transactions-tab" data-bs-toggle="tab" data-bs-target="#Transactions" type="button" role="tab" aria-controls="profile" aria-selected=@String.Format("nav-link{0}", SelectedTabId == "Transactions-tab" ? "true" : "false")>Transactions</a>
                     </li>
                     <li class="nav-item" role="presentation">
                         <a @onclick='(() => OnSelectTab("SalesOrders-tab"))' class=@String.Format("nav-link{0}", SelectedTabId == "SalesOrders-tab" ? " active" : null) id="SalesOrders-tab" data-bs-toggle="tab" data-bs-target="#SalesOrders" type="button" role="tab" aria-controls="profile" aria-selected=@String.Format("nav-link{0}", SelectedTabId == "SalesOrders-tab" ? "true" : "false")>Sales Orders</a>
@@ -103,7 +128,7 @@ else
                                         <th>Email</th>
                                         <th>Mobile</th>
                                         <th>Tags</th>
-                                        @if (WebPortalUserSessionStateContainer?.WebPortalUserSession?.IsAdminRole == true)
+                                        @if (WebPortalUserSessionStateContainer?.WebPortalUserSession?.IsAdminRole == true || WebPortalUserSessionStateContainer?.WebPortalUserSession?.AuthProvider == "credentials")
                                         {
                                             <th class="text-center">Edit</th>
                                             <th class="text-center">Delete</th>
@@ -125,7 +150,7 @@ else
                                                     <span class="badge rounded-pill bg-primary">@tag.Text</span>
                                                 }
                                             </td>
-                                            @if (WebPortalUserSessionStateContainer?.WebPortalUserSession?.IsAdminRole == true)
+                                            @if (WebPortalUserSessionStateContainer?.WebPortalUserSession?.IsAdminRole == true || WebPortalUserSessionStateContainer?.WebPortalUserSession?.AuthProvider == "credentials")
                                             {
                                                 <!--<td><button @onclick="(() => EditContactName(contactName))" type="button" class="btn btn-secondary">Edit</button></td>-->
                                                 <td class="text-center">
@@ -296,36 +321,33 @@ else
                                         </table>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Transactions</h5>
-                                    @if (LazyLoadTabIds.Contains("Financials-tab"))
-                                    {
-                                        <JiwaAPIAutoQueryGrid @ref="DebtorsTransactionsAutoQueryGrid" Model="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_Transactions_List"
-                                                              QueryType="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_Transactions_ListQuery"
-                                                              CaptionMaps=@(new Dictionary<string, string>
-                                                                                                  {
-                                                                                                      ["InvRemitNo"] = "Invoice / Remit No.",
-                                                                                                      ["TranDate"] = "Date",
-                                                                                                      ["DueDate"] = "Due Date",
-                                                                                                      ["DebitAmountIncTax"] = "Debit",
-                                                                                                      ["CreditAmountIncTax"] = "Credit",
-                                                                                                      ["GSTAmount"] = "Tax",
-                                                                                                      ["Ref"] = "Reference",
-                                                                                                      ["CurrencyShortName"] = "Currency",
-                                                                                                      ["AllocatedAmount"] = "Paid",
-                                                                                                      ["OutstandingAmount"] = "Owing"
-                                                                                                  } )
-                                                              HiddenColumns=@(new List<string>() { "SourceID", "DecimalPlaces", "CurrencyID", "DebitCredit" })
-                                                              AutoQuery="@DebtorsTransactionsAutoQuery"
-                                                              NoAuthenticationTokenCallbackMethod="@NoAuthenticationToken"
-                                                              APIExceptionCallbackMethod="@APIException"
-                                                              DataCellRenderFragmentCallbackMethod="@TransactionsGridDataCellRenderFragment"></JiwaAPIAutoQueryGrid>
-                                    }
-                                </div>
-                            </div>
+                            </div>                            
                         </div>
+                    </div>
+                    <div class=@String.Format("tab-pane{0}", SelectedTabId == "Transactions-tab" ? " active" : null) id="Transactions" role="tabpanel" aria-labelledby="Transactions-tab">
+                        @if (LazyLoadTabIds.Contains("Transactions-tab"))
+                        {
+                            <JiwaAPIAutoQueryGrid @ref="DebtorsTransactionsAutoQueryGrid" Model="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_Transactions_List"
+                                                  QueryType="JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_Transactions_ListQuery"
+                                                  CaptionMaps=@(new Dictionary<string, string>
+                                                                                          {
+                                                                                              ["InvRemitNo"] = "Invoice / Remit No.",
+                                                                                              ["TranDate"] = "Date",
+                                                                                              ["DueDate"] = "Due Date",
+                                                                                              ["DebitAmountIncTax"] = "Debit",
+                                                                                              ["CreditAmountIncTax"] = "Credit",
+                                                                                              ["GSTAmount"] = "Tax",
+                                                                                              ["Ref"] = "Reference",
+                                                                                              ["CurrencyShortName"] = "Currency",
+                                                                                              ["AllocatedAmount"] = "Paid",
+                                                                                              ["OutstandingAmount"] = "Owing"
+                                                                                          } )
+                                                  HiddenColumns=@(new List<string>() { "SourceID", "DecimalPlaces", "CurrencyID", "DebitCredit" })
+                                                  AutoQuery="@DebtorsTransactionsAutoQuery"
+                                                  NoAuthenticationTokenCallbackMethod="@NoAuthenticationToken"
+                                                  APIExceptionCallbackMethod="@APIException"
+                                                  DataCellRenderFragmentCallbackMethod="@TransactionsGridDataCellRenderFragment"></JiwaAPIAutoQueryGrid>
+                        }
                     </div>
                     <div class=@String.Format("tab-pane{0}", SelectedTabId == "SalesOrders-tab" ? " active" : null) id="SalesOrders" role="tabpanel" aria-labelledby="SalesOrders-tab">
                         @if (LazyLoadTabIds.Contains("SalesOrders-tab"))
@@ -424,8 +446,7 @@ else
 }
 @code {
     private bool APIRequestInPogress;
-    private string? statusMessage;
-    private JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_List selectedDebtorListItem { get; set; }
+    private string? statusMessage;    
     private JiwaFinancials.Jiwa.JiwaServiceModel.Debtors.Debtor Debtor { get; set; }
     private string SelectedTabId { get; set; } = "Contacts-tab";
 
@@ -434,6 +455,8 @@ else
     private List<String> LazyLoadTabIds = new List<string>();
 
     private JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_ListQuery v_Jiwa_Debtor_ListQuery { get; set; }
+    private JiwaAPIAutoQueryGrid<JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_List, JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_ListQuery> CustomerListGrid { get; set; }
+    private JiwaAPIAutoQueryGrid<JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_List, JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_ListQuery> CustomerListGridCompact { get; set; }
 
     private JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_Transactions_ListQuery DebtorsTransactionsAutoQuery { get; set; }
     private JiwaAPIAutoQueryGrid<JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_Transactions_List, JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_Transactions_ListQuery> DebtorsTransactionsAutoQueryGrid { get; set; }
@@ -557,7 +580,7 @@ else
 
     public async void ItemSelected(JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_List item)
     {
-        selectedDebtorListItem = item;
+        // when a debtor is selected from the customer list, we need to read the debtor
 
         bool oldAPIRequestInPogress = APIRequestInPogress;
         APIRequestInPogress = true;
@@ -588,9 +611,7 @@ else
         finally
         {
             APIRequestInPogress = oldAPIRequestInPogress;
-        }
-
-        //LazyLoadTabIds.Clear(); // clear the list of loaded tabs, so that if we select a different debtor, when we click on the financials or sales orders etc. tabs it will know to load those for the newly selected debtor instead of thinking it can just show the data it already has loaded for the previously selected debtor.
+        }        
 
         if (Debtor is not null)
         {
@@ -623,10 +644,11 @@ else
                     Period3Label = "Period 2";
                     Period4Label = "Period 3";
                     break;
-            }
+            }            
 
+            // Re-query the auto-queries with the new DebtorID
             DebtorsTransactionsAutoQuery.DebtorID = Debtor.DebtorID;
-            if (DebtorsTransactionsAutoQueryGrid is not null && SelectedTabId == "Financials-tab")
+            if (DebtorsTransactionsAutoQueryGrid is not null && SelectedTabId == "Transactions-tab")
             {
                 await DebtorsTransactionsAutoQueryGrid.ExecuteAutoQuery();
             }
@@ -650,6 +672,22 @@ else
         }
 
         StateHasChanged();
+    }
+
+    public JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_List InitialSelectedItemMethod(List<JiwaFinancials.Jiwa.JiwaServiceModel.Tables.v_Jiwa_Debtor_List> Results)
+    {
+        // Selects an item when the component is displaying for the first time - we have two customer list grids - the expanded one (CustomerListGrid)
+        // when no debtor has been selected, and then the collapsed / compact one (CustomerListGridCompact) when a debtor has been selected - this method is used
+        // when first displaying the compact grid.
+
+        if (Results != null && Results.Count > 0 && CustomerListGrid.SelectedItem != null)
+        {
+            return Results.FirstOrDefault(f => f.DebtorID == CustomerListGrid.SelectedItem.DebtorID);
+        }
+        else
+        {
+            return null;
+        }
     }
 
     private async Task ReadBackOrders()
