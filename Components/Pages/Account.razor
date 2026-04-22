@@ -364,44 +364,37 @@
         </div>
         <div class=@String.Format("tab-pane{0}", SelectedTabId=="Backorders-tab" ? " active": null) id="Backorders" role="tabpanel" aria-labelledby="Backorders-tab">
             @if (BackOrders != null)
-            {
-                @if (BackOrders.Count == 0)
-                {
-                    <p>You have no outstanding backorders.</p>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped small">
-                            <thead>
-                                <tr>
-                                    <th>Part No.</th>
-                                    <th>Description</th>                    
-                                    <th>Invoice No.</th>
-                                    <th>Order No.</th>
-                                    <th class="text-end">Date</th>
-                                    <th class="text-end">Quantity</th>
-                                    <th class="text-end">ETA</th>
-                                </tr>
-                            </thead>
+            {                
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped small">
+                        <thead>
+                            <tr>
+                                <th>Part No.</th>
+                                <th>Description</th>                    
+                                <th>Invoice No.</th>
+                                <th>Order No.</th>
+                                <th class="text-end">Date</th>
+                                <th class="text-end">Quantity</th>
+                                <th class="text-end">ETA</th>
+                            </tr>
+                        </thead>
 
-                            <tbody>
-                                @foreach (JiwaFinancials.Jiwa.JiwaServiceModel.Debtors.DebtorBackOrder backorder in BackOrders)
-                                {
-                                    <tr>
-                                        <td>@backorder.PartNo</td>
-                                        <td>@backorder.Description</td>
-                                        <td><a href="SalesOrder/@backorder.InvoiceID">@backorder.InvoiceNo</a></td>
-                                        <td>@backorder.CustomerOrderNo</td>
-                                        <td class="text-end">@backorder.Date.ToString(@BrowserService.DateFormat)</td>
-                                        <td class="text-end">@backorder.Quantity.ToString($"#,0.{new String('0', backorder.QuantityDecimalPlaces)}")</td>
-                                        <td class="text-end">@backorder.ExpectedDeliveryDate.ToString(@BrowserService.DateFormat)</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
+                        <tbody>
+                            @foreach (JiwaFinancials.Jiwa.JiwaServiceModel.Debtors.DebtorBackOrder backorder in BackOrders)
+                            {
+                                <tr>
+                                    <td>@backorder.PartNo</td>
+                                    <td>@backorder.Description</td>
+                                    <td><a href="SalesOrder/@backorder.InvoiceID">@backorder.InvoiceNo</a></td>
+                                    <td>@backorder.CustomerOrderNo</td>
+                                    <td class="text-end">@backorder.Date.ToString(@BrowserService.DateFormat)</td>
+                                    <td class="text-end">@backorder.Quantity.ToString($"#,0.{new String('0', backorder.QuantityDecimalPlaces)}")</td>
+                                    <td class="text-end">@backorder.ExpectedDeliveryDate.ToString(@BrowserService.DateFormat)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>                
             }
         </div>
     </div>

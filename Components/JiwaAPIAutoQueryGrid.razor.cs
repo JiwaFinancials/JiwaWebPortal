@@ -193,6 +193,7 @@ namespace JiwaCustomerPortal.Components
             if (InitialSelectedItemMethod is not null)
             {
                 SelectedItem = InitialSelectedItemMethod.Invoke(Response.Results);
+                await ItemSelectedCallbackMethod.InvokeAsync(SelectedItem);
             }
         }
 
@@ -533,10 +534,17 @@ namespace JiwaCustomerPortal.Components
 
         public async void OnRowClick(Model item)
         {
-            SelectedItem = item;
-            if (ItemSelectedCallbackMethod.HasDelegate)
+            if (AddSelectButtonColumn)
             {
-                await ItemSelectedCallbackMethod.InvokeAsync(item);
+                // We don't use OnSelectItem if the button is present, otherwise the ItemSelectedCallbackMethod gets invoked twice - once for
+                // the row click and once for the button click
+                // So we simply set the SelectedItem
+                SelectedItem = item;
+            }
+            else
+            {
+                // if there is no select button column, then clicking the row itself selects the item
+                OnSelectItem(item);
             }
         }
     }

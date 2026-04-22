@@ -100,7 +100,14 @@
                         </div>
                         <div>
                             <p>
-                                <a href="User/ForgotPassword">Forgot your password?</a>
+                                @if(SignInAsStaffMember)
+                                {
+                                    <a href="User/ForgotPassword/Staff">Forgot your password?</a>
+                                }
+                                else
+                                {
+                                    <a href="User/ForgotPassword/User">Forgot your password?</a>
+                                }                                
                             </p>                    
                         </div>
                     </EditForm>
@@ -133,7 +140,14 @@
                         </div>
                         <div>
                             <p>
-                                <a href="User/ForgotPassword">Forgot your password?</a>
+                                @if (SignInAsStaffMember)
+                                {
+                                    <a href="User/ForgotPassword/Staff">Forgot your password?</a>
+                                }
+                                else
+                                {
+                                    <a href="User/ForgotPassword/User">Forgot your password?</a>
+                                }                                
                             </p>
                         </div>
                     </EditForm>

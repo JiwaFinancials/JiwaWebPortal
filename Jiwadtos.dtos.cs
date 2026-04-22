@@ -106,6 +106,56 @@ namespace JiwaFinancials.Jiwa.JiwaServiceModel
         public string Token { get; set; }
         public string NewPassword { get; set; }
     }
+
+    [Route("/Debtors/ContactNames/{ContactNameID}/PasswordChange", "POST")]
+    [ApiResponse(Description = "Not authenticated", StatusCode = 401)]
+    [ApiResponse(Description = "Not authorised", StatusCode = 403)]
+    [ApiResponse(Description = "No debtor contact name with the ContactNameID provided was not found", StatusCode = 404)]
+    [ApiResponse(Description = "Password changed successfully", StatusCode = 204)]
+    public partial class DebtorContactNameChangePasswordPOSTRequest
+       : IReturnVoid
+    {
+        public virtual string ContactNameID { get; set; }
+        public virtual string ExistingPassword { get; set; }
+        public virtual string NewPassword { get; set; }
+    }
+
+    [Route("/Staff/{Username}/PasswordReset", "POST")]
+    [ApiResponse(Description = "Not authenticated", StatusCode = 401)]
+    [ApiResponse(Description = "Not authorised", StatusCode = 403)]
+    [ApiResponse(Description = "No staff member with the Username provided was not found", StatusCode = 404)]
+    [ApiResponse(Description = "Password reset request generated and emailed", StatusCode = 204)]
+    public partial class StaffResetPasswordPOSTRequest
+       : IReturnVoid
+    {
+        public virtual string Username { get; set; }
+        public virtual string ResetURL { get; set; }
+    }
+
+    [Route("/Staff/{Token}/TokenisedPasswordChange", "POST")]
+    [ApiResponse(Description = "Not authenticated", StatusCode = 401)]
+    [ApiResponse(Description = "Not authorised", StatusCode = 403)]
+    [ApiResponse(Description = "No staff member with the StaffID provided was not found", StatusCode = 404)]
+    [ApiResponse(Description = "Password changed successfully", StatusCode = 204)]
+    public partial class StaffTokenisedChangePasswordPOSTRequest
+        : IReturnVoid
+    {
+        public virtual string Token { get; set; }
+        public virtual string NewPassword { get; set; }
+    }
+
+    [Route("/Staff/{StaffID}/PasswordChange", "POST")]
+    [ApiResponse(Description = "Not authenticated", StatusCode = 401)]
+    [ApiResponse(Description = "Not authorised", StatusCode = 403)]
+    [ApiResponse(Description = "No staff member with the StaffID provided was not found", StatusCode = 404)]
+    [ApiResponse(Description = "Password changed successfully", StatusCode = 204)]
+    public partial class StaffChangePasswordPOSTRequest
+       : IReturnVoid
+    {
+        public virtual string StaffID { get; set; }
+        public virtual string ExistingPassword { get; set; }
+        public virtual string NewPassword { get; set; }
+    }
 }
 #endregion
 
@@ -572,8 +622,7 @@ namespace JiwaFinancials.Jiwa.JiwaServiceModel.Debtors
         public virtual string ExternalAppRecID { get; set; }
         public virtual DateTimeOffset? LastSavedDateTime { get; set; }
         //public virtual bool? LogonCodeChangedByUser { get; set; }
-        public virtual string CurrentCustomerWebPortalPassword { get; set; }
-        public virtual string NewCustomerWebPortalPassword { get; set; }
+        public virtual string CustomerWebPortalPassword { get; set; }     
         public virtual List<Tags.Tag> TagMemberships { get; set; }
         //public virtual List<CustomFieldValue> CustomFieldValues { get; set; }
     }
